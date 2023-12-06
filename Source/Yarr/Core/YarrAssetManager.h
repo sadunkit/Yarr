@@ -13,4 +13,10 @@ UCLASS()
 class YARR_API UYarrAssetManager : public UAssetManager
 {
 	GENERATED_BODY()
+
+public:
+	virtual void PostInitProperties() override;
+
+	UFUNCTION(BlueprintCallable, Category = "Yarr")
+	static void GetAssetTypeInfo(TArray<FName>& OutAssetTypeNames);
 };
