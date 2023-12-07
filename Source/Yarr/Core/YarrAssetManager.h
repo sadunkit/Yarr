@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/AssetManager.h"
+
 #include "YarrAssetManager.generated.h"
 
 /**
@@ -15,8 +16,13 @@ class YARR_API UYarrAssetManager : public UAssetManager
 	GENERATED_BODY()
 
 public:
+	static UYarrAssetManager& Get();
 	virtual void PostInitProperties() override;
 
 	UFUNCTION(BlueprintCallable, Category = "Yarr")
 	static void GetAssetTypeInfo(TArray<FName>& OutAssetTypeNames);
+
+#if ENABLE_DRAW_DEBUG
+	void DisplayDebug(UCanvas* Canvas);
+#endif
 };
