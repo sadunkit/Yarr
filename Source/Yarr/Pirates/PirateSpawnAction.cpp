@@ -4,6 +4,7 @@
 #include "PirateSpawnAction.h"
 
 #include "PirateCharacter.h"
+#include "Yarr/Core/YarrAssetManager.h"
 
 void UPirateSpawnAction_DefaultSpawn::Tick(float DeltaSeconds)
 {
@@ -14,13 +15,12 @@ void UPirateSpawnAction_DefaultSpawn::Tick(float DeltaSeconds)
 		TimeSinceLastSpawn = 0.0f;
 
 		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		SpawnParams.bDeferConstruction = true;
 		
-		APirateCharacter* NewPirate = GetWorld()->SpawnActor<APirateCharacter>(PirateClass, FVector::Zero(), FRotator::ZeroRotator, SpawnParams);
-
-
-		NewPirate->BodyPartsToAttach = {};
+		APirateCharacter* NewPirate = GetWorld()->SpawnActor<APirateCharacter>(PirateClass, FVector{ 0, 0, 200}, FRotator::ZeroRotator, SpawnParams);
+		
+		NewPirate->BodyPartsToAttach = UYarrAssetManager::Get().GetBodyPartsToAttach();
 
 		NewPirate->FinishSpawning(FTransform::Identity, true);
 	}

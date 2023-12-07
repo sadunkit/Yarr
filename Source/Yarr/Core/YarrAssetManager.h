@@ -21,7 +21,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Yarr")
 	static void GetAssetTypeInfo(TArray<FName>& OutAssetTypeNames);
-
+	
+#pragma region Pirates
+	/*
+	 *	This will load all the body parts that are tagged as accessories. Blocking call.
+	 */
+	TArray<const USkeletalMesh*> GetBodyPartsToAttach();
+#pragma endregion
+	
 #if ENABLE_DRAW_DEBUG
 	void DisplayDebug(UCanvas* Canvas);
 #endif

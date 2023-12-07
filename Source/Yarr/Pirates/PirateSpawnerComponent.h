@@ -6,6 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "PirateSpawnerComponent.generated.h"
 
+class UPirateSpawnAction;
+class APirateCharacter;
+
 UCLASS(meta=(BlueprintSpawnableComponent))
 class YARR_API UPirateSpawnerComponent : public UActorComponent
 {
@@ -14,13 +17,14 @@ class YARR_API UPirateSpawnerComponent : public UActorComponent
 public:
 	UPirateSpawnerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 	
+	virtual void InitializeComponent() override;
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	// List of actions to perform as this round is initializing, starting and ending
 	UPROPERTY(EditAnywhere, Instanced, Category="Pirates")
-	TArray<TObjectPtr<class UPirateSpawnAction>> SpawnerActions;
+	TArray<TObjectPtr<UPirateSpawnAction>> SpawnerActions;
 
-	UPROPERTY(EditAnywhere, Category="Pirates")
-	TSubclassOf<ACharacter> PirateClass;
+	UPROPERTY(EditDefaultsOnly, Category="Pirates")
+	TSubclassOf<APirateCharacter> PirateClass;
 };

@@ -4,3 +4,8 @@
 #include "PirateCharacter.h"
 
 
+APirateCharacter::APirateCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+
+}

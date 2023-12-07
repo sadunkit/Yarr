@@ -10,9 +10,12 @@ UCLASS()
 class YARR_API APirateCharacter : public ACharacter
 {
 	GENERATED_BODY()
-	// TODO: Attach These in the CPP
-	
+
 public:
+	APirateCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
 	UPROPERTY(BlueprintReadOnly, Category = "Pirate")
-	TArray<TObjectPtr<USkeletalMesh>> BodyPartsToAttach;
+	TArray<const USkeletalMesh*> BodyPartsToAttach;
+	
+	// TODO: Attach These in the CPP
 };
