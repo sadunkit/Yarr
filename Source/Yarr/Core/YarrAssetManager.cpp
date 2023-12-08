@@ -49,25 +49,11 @@ namespace Pirates
 	const FPrimaryAssetType PiratePartDataType = FPrimaryAssetType("PiratePartData");
 }
 
-TArray<const USkeletalMesh*> UYarrAssetManager::GetBodyPartsToAttach()
+TArray<const USkeletalMesh*> UYarrAssetManager::LoadPiratePartMeshesAndJustPassThemAlong()
 {
 	TArray<const USkeletalMesh*> Meshes = {};
 
-	TArray<FAssetData> AssetDataList;
-	GetPrimaryAssetDataList(Pirates::PiratePartDataType, AssetDataList);
-
-	const auto FilteredAssets = AssetDataList.FilterByPredicate([] (const FAssetData& AssetData)
-	{
-		if (const FAssetDataTagMapSharedView::FFindTagResult TagValue = AssetData.TagsAndValues.FindTag(GET_MEMBER_NAME_CHECKED(UPiratePartData, PartTag)); TagValue.IsSet())
-		{
-			FGameplayTag Tag;
-			Tag.FromExportString(TagValue.GetValue());
-			
-			return Tag.MatchesTag(YarrGameplayTags::Pirate_BodyPart_Accessory);
-		}
-		return false;
-	});
-	
+	const TArray<FAssetData> FilteredAssets = GetAccessoryAssetData();
 	if (const int32 FilteredAssetsSize = FilteredAssets.Num(); FilteredAssetsSize > 0)
 	{
 		//	TArray<FPrimaryAssetId> AssetsToLoad;
@@ -88,6 +74,61 @@ TArray<const USkeletalMesh*> UYarrAssetManager::GetBodyPartsToAttach()
 	}
 	
 	return Meshes;
+}
+
+void UYarrAssetManager::LoadViaPrimaryAssetList(const FAccessorySetLoadedDelegate& OnLoadComplete)
+{
+	if (const TArray<FAssetData> AssetData = GetAccessoryAssetData(); AssetData.Num() > 0)
+	{
+		// get the primary asset ids from the asset data
+		TArray<FPrimaryAssetId> AssetIds;
+		AssetIds.Reserve(AssetData.Num());
+		for (const FAssetData& Asset : AssetData)
+		{
+			AssetIds.Add(Asset.GetPrimaryAssetId());
+		}
+
+		LoadPrimaryAssets(AssetIds, {"Gameplay"}, FStreamableDelegate::CreateWeakLambda(this, [OnLoadComplete, AssetIds, this]()
+			{
+				FAccessorySet PlaceholderAccessorySet;
+
+				PlaceholderAccessorySet.AccessoryParts.Reserve(AssetIds.Num());
+				for (const FPrimaryAssetId& AssetId : AssetIds)
+				{
+					if (const UPiratePartData* PiratePartData = GetPrimaryAssetObject<UPiratePartData>(AssetId))
+					{
+						// we don't need to load the mesh here because it's already loaded via the Gameplay bundle
+						const USkeletalMesh* SkeletalMesh = PiratePartData->SkeletalMesh.Get();
+
+						checkf(SkeletalMesh, TEXT("SkeletalMesh is null for %s"), *AssetId.ToString());
+
+						PlaceholderAccessorySet.AccessoryParts.Add(SkeletalMesh);
+					}
+				}
+				
+				OnLoadComplete.Execute(PlaceholderAccessorySet);
+			}));
+	}
+}
+
+TArray<FAssetData> UYarrAssetManager::GetAccessoryAssetData() const
+{
+	TArray<FAssetData> AssetDataList;
+	GetPrimaryAssetDataList(Pirates::PiratePartDataType, AssetDataList);
+
+	return AssetDataList.FilterByPredicate([] (const FAssetData& AssetData)
+	{
+		// AssetData.GetTagValue() can be called for simpler types i.e. FString, FName, int bool etc.
+		// but for more complex types like FGameplayTag, you could use the FAssetDataTagMapSharedView::FFindTagResult
+		if (const FAssetDataTagMapSharedView::FFindTagResult TagValue = AssetData.TagsAndValues.FindTag(GET_MEMBER_NAME_CHECKED(UPiratePartData, PartTag)); TagValue.IsSet())
+		{
+			FGameplayTag Tag;
+			Tag.FromExportString(TagValue.GetValue());
+			
+			return Tag.MatchesTag(YarrGameplayTags::Pirate_BodyPart_Accessory);
+		}
+		return false;
+	});
 }
 #pragma endregion
 

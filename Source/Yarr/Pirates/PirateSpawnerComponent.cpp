@@ -30,7 +30,7 @@ void UPirateSpawnerComponent::BeginPlay()
 	
 	for (const auto& Action : SpawnerActions)
 	{
-		Action->SetPawnClass(PirateClass);
+		Action->BeginPlay(PirateClass);
 	}
 }
 

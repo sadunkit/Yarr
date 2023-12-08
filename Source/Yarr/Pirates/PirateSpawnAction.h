@@ -5,9 +5,10 @@
 #include "CoreMinimal.h"
 #include "PirateSpawnerComponent.h"
 #include "UObject/Object.h"
-#include "Yarr/YarrLogChannels.h"
+#include "Yarr/Core/YarrAssetManager.h"
 #include "PirateSpawnAction.generated.h"
 
+struct FAccessorySet;
 /**
  * 
  */
@@ -17,7 +18,7 @@ class YARR_API UPirateSpawnAction : public UObject
 	GENERATED_BODY()
 public:
 
-	virtual void SetPawnClass(const TSubclassOf<ACharacter> InPirateClass)
+	virtual void BeginPlay(const TSubclassOf<ACharacter> InPirateClass)
 	{
 		PirateClass = InPirateClass;
 
@@ -33,6 +34,11 @@ public:
 
 	};
 
+	virtual TArray<const USkeletalMesh*> GetBodyPartsToAttach() const
+	{
+		return UYarrAssetManager::Get().LoadPiratePartMeshesAndJustPassThemAlong();
+	};
+
 protected:
 	TSubclassOf<ACharacter> PirateClass;
 
@@ -40,6 +46,13 @@ protected:
 	TObjectPtr<UPirateSpawnerComponent> PirateSpawnerComponent;
 };
 
+/**
+ *  This is a Pirate Spawn Action that will spawn a pirate every SpawnDelay seconds
+ *  Uses the default GetBodyPartsToAttach implementation to load the SkeletalMeshes without any real thought;
+ *  and just passes them along to the spawned pirate.
+ *
+ *  I personally think this is the cleanest way to do this, but I'm open to suggestions.
+ */
 UCLASS(meta=(DisplayName="Default Spawn"))
 class YARR_API UPirateSpawnAction_DefaultSpawn : public UPirateSpawnAction
 {
@@ -53,4 +66,21 @@ public:
 
 private:
 	float TimeSinceLastSpawn = 0.0f;
+};
+
+
+/**
+ *  This is a Pirate Spawn Action that will hold on to the FAccessorySet in a TSharedPtr
+ */
+UCLASS(meta=(DisplayName="Hold on to Accessory Set"))
+class YARR_API UPirateSpawnAction_HoldOnToAccessorySet : public UPirateSpawnAction_DefaultSpawn
+{
+	GENERATED_BODY()
+	
+public:
+	virtual void BeginPlay(const TSubclassOf<ACharacter> InPirateClass) override;
+	virtual void Tick(float DeltaSeconds) override;
+	virtual TArray<const USkeletalMesh*> GetBodyPartsToAttach() const override;
+	
+	TSharedPtr<const FAccessorySet> AccessorySet;
 };
