@@ -45,7 +45,6 @@ void UYarrAssetManager::GetAssetTypeInfo(TArray<FName>& OutAssetTypeNames)
 #pragma region Pirates
 namespace Pirates
 {
-	// this should just be a static member of UYarrAssetManager
 	const FPrimaryAssetType PiratePartDataType = FPrimaryAssetType("PiratePartData");
 }
 
@@ -56,11 +55,6 @@ TArray<const USkeletalMesh*> UYarrAssetManager::LoadPiratePartMeshesAndJustPassT
 	const TArray<FAssetData> FilteredAssets = GetAccessoryAssetData();
 	if (const int32 FilteredAssetsSize = FilteredAssets.Num(); FilteredAssetsSize > 0)
 	{
-		//	TArray<FPrimaryAssetId> AssetsToLoad;
-		//  AssetsToLoad.Reserve(FilteredAssetsSize);
-		//  AssetsToLoad.Add(AssetData.GetPrimaryAssetId());
-		//  TSharedPtr<FStreamableHandle> Handle = ChangeBundleStateForPrimaryAssets(AssetsToLoad, {"Gameplay"}, {});
-		
 		for (const FAssetData& AssetData : FilteredAssets)
 		{
 			// Loads the asset synchronously
