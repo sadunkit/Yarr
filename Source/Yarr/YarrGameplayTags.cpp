@@ -1,3 +1,6 @@
+// Copyright 2023 sadunkit
+// @see https://github.com/sadunkit/yarr
+
 #include "YarrGameplayTags.h"
 
 #include "YarrLogChannels.h"
